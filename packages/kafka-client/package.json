@@ -1,0 +1,18 @@
+{
+    "name": "@ospetitions/kafka-client",
+    "version": "0.0.1",
+
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+
+    "dependencies": {
+        "@ospetitions/shared-types": "workspace:*",
+        "kafkajs": "^2.2.4"
+    },
+
+    "scripts": {
+        "build": "tsc",
+        "dev": "tsc --watch",
+        "lint": "eslint src/"
+    }
+}
