@@ -1,0 +1,137 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+
+    environment:
+      POSTGRES_USER: ospetitions
+      POSTGRES_PASSWORD: ospetitions
+      POSTGRES_DB: ospetitions
+    
+    ports:
+      - "5432:5432"
+    
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./infrastructure/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  clickhouse:
+    image: clickhouse/clickhouse-server:24
+    
+    ports:
+      - "8123:8123"
+      - "9000:9000"
+    
+    volumes:
+      - clickhouse_data:/var/lib/clickhouse
+      - ./infrastructure/clickhouse/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  qdrant:
+    image: qdrant/qdrant:v1.9.0
+    
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+
+    volumes:
+      - qdrant_data:/qdrant/storage
+
+  redis:
+    image: redis:7-alpine
+    
+    ports:
+      - "6379:6379"
+    
+    volumes:
+      - redis_data:/data
+    
+    command: redis-server --appendonly yes
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.6.0
+    
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+
+    volumes:
+      - zookeeper_data:/var/lib/zookeeper/data
+
+  kafka:
+    image: confluentinc/cp-kafka:7.6.0
+
+    depends_on:
+      - zookeeper
+      
+    ports:
+      - "9092:9092"
+
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      # TODO: PLAINTEXT_HOST
+      # TODO: PLAINTEXT — for docker
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: false
+    
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+
+  kafka-init:
+    image: confluentinc/cp-kafka:7.6.0
+
+    depends_on:
+      - kafka
+    
+    entrypoint: ["/bin/sh", "-c"]
+
+    command: |
+      "
+      echo 'Waiting for Kafka to be ready...'
+      cub kafka-ready -b kafka:29092 1 30
+      
+      kafka-topics --create --if-not-exists --bootstrap-server kafka:29092 \
+        --topic petition.created --partitions 3 --replication-factor 1
+      
+      kafka-topics --create --if-not-exists --bootstrap-server kafka:29092 \
+        --topic petition.viewed --partitions 6 --replication-factor 1
+      
+      kafka-topics --create --if-not-exists --bootstrap-server kafka:29092 \
+        --topic petition.skipped --partitions 6 --replication-factor 1
+      
+      kafka-topics --create --if-not-exists --bootstrap-server kafka:29092 \
+        --topic petition.interested --partitions 6 --replication-factor 1
+      
+      kafka-topics --create --if-not-exists --bootstrap-server kafka:29092 \
+        --topic petition.signed --partitions 3 --replication-factor 1
+      
+      kafka-topics --create --if-not-exists --bootstrap-server kafka:29092 \
+        --topic user.registered --partitions 3 --replication-factor 1
+      
+      kafka-topics --create --if-not-exists --bootstrap-server kafka:29092 \
+        --topic user.preference.updated --partitions 3 --replication-factor 1
+      
+      echo 'Kafka topics created successfully'
+      "
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+
+    depends_on:
+      - kafka
+    
+    ports:
+      - "8080:8080"
+    
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
+
+volumes:
+  postgres_data:
+  clickhouse_data:
+  qdrant_data:
+  redis_data:
+  zookeeper_data:
+  kafka_data:
