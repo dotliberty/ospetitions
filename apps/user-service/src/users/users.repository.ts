@@ -19,12 +19,12 @@ export class UsersRepository {
         return this.repo.findOneBy({ email });
     }
 
-    async createUser(user: Partial<UserEntity>): Promise<UserEntity> {
+    async create(user: Partial<UserEntity>): Promise<UserEntity> {
         const newUser = this.repo.create(user);
         return this.repo.save(newUser);
     }
 
-    async updateUser(id: string, data: Partial<UserEntity>): Promise<void> {
+    async update(id: string, data: Partial<UserEntity>): Promise<void> {
         await this.repo.update(id, data);
     }
 

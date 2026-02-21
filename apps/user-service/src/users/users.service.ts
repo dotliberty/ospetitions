@@ -24,7 +24,7 @@ export class UsersService {
 
         const passwordHash = await bcrypt.hash(dto.password, BCRYPT_ROUNDS);
 
-        return this.usersRepo.createUser({
+        return this.usersRepo.create({
             email: dto.email,
             passwordHash,
             displayName: dto.displayName,
@@ -52,7 +52,7 @@ export class UsersService {
     }
 
     async updateProfile(userId: string, dto: UpdateProfileDto): Promise<UserEntity> {
-        await this.usersRepo.updateUser(userId, dto);
+        await this.usersRepo.update(userId, dto);
 
         return this.findById(userId);
     }
