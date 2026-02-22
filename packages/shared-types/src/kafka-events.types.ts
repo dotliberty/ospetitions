@@ -43,7 +43,7 @@ export interface PetitionSignedEvent {
 export interface UserRegisteredEvent {
     eventType: 'user.registered';
 
-    sessionId: string;
+    sessionId?: string;
     userId: string;
 
     timestamp: string;
