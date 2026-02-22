@@ -6,7 +6,7 @@ export class HealthController {
     check() {
         return {
             status: 'ok',
-            service: 'user-service',
+            service: 'search-service',
             timestamp: new Date().toISOString()
         };
     }
