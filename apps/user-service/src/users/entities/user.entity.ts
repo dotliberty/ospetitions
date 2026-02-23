@@ -3,6 +3,8 @@ import {
     CreateDateColumn, UpdateDateColumn
 } from "typeorm";
 
+import {PetitionHistoryEntry, PetitionInteractionType} from "@ospetitions/shared-types";
+
 @Entity({ schema: 'users', name: 'users' })
 export class UserEntity {
     @PrimaryGeneratedColumn('uuid')
@@ -22,6 +24,12 @@ export class UserEntity {
 
     @Column('simple-array',  { default: '' })
     preferredTags!: string[];
+
+    @Column('jsonb', { default: [] })
+    signedPetitionIds!: string[];
+
+    @Column('jsonb', { default: [] })
+    petitionHistory!: PetitionHistoryEntry[];
 
     @Column({ nullable: true })
     refreshTokenHash!: string | null;

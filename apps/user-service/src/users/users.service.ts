@@ -8,6 +8,8 @@ import { UserEntity } from "./entities/user.entity";
 import { UpdateProfileDto } from "./dto/update-profile.dto";
 import { RegisterDto } from "./dto/register.dto";
 
+import {PetitionHistoryEntry, PetitionInteractionType} from "@ospetitions/shared-types";
+
 const BCRYPT_ROUNDS = 12;
 
 @Injectable()
@@ -55,6 +57,33 @@ export class UsersService {
         await this.usersRepo.update(userId, dto);
 
         return this.findById(userId);
+    }
+
+    async addToHistory(userId: string, entry: PetitionHistoryEntry): Promise<void> {
+        const user = await this.usersRepo.findById(userId);
+        if (!user) {
+            return
+        }
+
+        const alreadyExists = user.petitionHistory.some(
+            h => h.petitionId === entry.petitionId && h.interactionType === entry.interactionType
+        );
+        if (alreadyExists) return;
+
+        const updated = [...user.petitionHistory, entry];
+        await this.usersRepo.update(userId, { petitionHistory: updated });
+    }
+
+    async addSignedPetition(userId: string, petitionId: string): Promise<void> {
+        const user = await this.usersRepo.findById(userId);
+        if (!user) {
+            return
+        }
+
+        if (user.signedPetitionIds.includes(petitionId)) return;
+
+        const updated = [...user.signedPetitionIds, petitionId];
+        await this.usersRepo.update(userId, { signedPetitionIds: updated });
     }
 
     async setRefreshToken(userId: string, refreshToken: string | null): Promise<void> {
