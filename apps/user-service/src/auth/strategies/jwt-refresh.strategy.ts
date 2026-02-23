@@ -3,7 +3,7 @@ import { PassportStrategy } from "@nestjs/passport";
 import { ConfigService } from "@nestjs/config";
 
 import { ExtractJwt, Strategy } from "passport-jwt";
-import { Request } from "express";
+import { FastifyRequest } from "fastify";
 
 import { UsersService } from "../../users/users.service";
 import { JwtPayload } from "./jwt-access.strategy";
@@ -21,8 +21,8 @@ export class JwtRefreshStrategy extends PassportStrategy(Strategy, "jwt-refresh"
         });
     }
 
-    async validate(req: Request, payload: JwtPayload) {
-        const refreshToken = req.body?.refreshToken;
+    async validate(req: FastifyRequest, payload: JwtPayload) {
+        const refreshToken = (req.body as any)?.refreshToken;
         const isValid = await this.usersService.validateRefreshToken(payload.sub, refreshToken);
         if (!isValid) {
             throw new UnauthorizedException("Invalid refresh token");
