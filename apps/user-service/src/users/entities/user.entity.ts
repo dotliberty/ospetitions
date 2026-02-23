@@ -3,20 +3,20 @@ import {
     CreateDateColumn, UpdateDateColumn
 } from "typeorm";
 
-import {PetitionHistoryEntry, PetitionInteractionType} from "@ospetitions/shared-types";
+import { PetitionHistoryEntry, PetitionInteractionType } from "@ospetitions/shared-types";
 
 @Entity({ schema: 'users', name: 'users' })
 export class UserEntity {
     @PrimaryGeneratedColumn('uuid')
     id!: string;
 
-    @Column({ unique: true })
+    @Column('varchar', { unique: true })
     email!: string;
 
-    @Column()
+    @Column('varchar')
     passwordHash!: string;
 
-    @Column({ nullable: true })
+    @Column('varchar', { nullable: true })
     displayName!: string;
 
     @Column('simple-array',  { default: '' })
@@ -31,10 +31,10 @@ export class UserEntity {
     @Column('jsonb', { default: [] })
     petitionHistory!: PetitionHistoryEntry[];
 
-    @Column({ nullable: true })
+    @Column('varchar', { nullable: true })
     refreshTokenHash!: string | null;
 
-    @Column({ nullable: true })
+    @Column('varchar', { nullable: true })
     previousSessionId!: string | null;
 
     @CreateDateColumn()

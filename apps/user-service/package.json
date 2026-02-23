@@ -23,6 +23,12 @@
   "devDependencies": {
     "@types/bcryptjs": "^3.0.0",
     "@types/node": "^25.3.0",
-    "@types/passport-jwt": "^4.0.1"
+    "@types/passport-jwt": "^4.0.1",
+    "ts-node": "^10.9.2"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "ts-node -r reflect-metadata --project tsconfig.json src/main.ts",
+    "start": "node dist/main.js"
   }
 }

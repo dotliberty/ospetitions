@@ -10,8 +10,13 @@
     "strict": true,
     "esModuleInterop": true,
     "types": ["node"],
-    "experimentalDecorators": true
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist"]
+  "exclude": ["node_modules", "dist"],
+  "ts-node": {
+    "require": ["reflect-metadata"],
+    "transpileOnly": false
+  }
 }

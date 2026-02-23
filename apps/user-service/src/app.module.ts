@@ -8,7 +8,10 @@ import { UserEntity } from './users/entities/user.entity';
 
 @Module({
     imports: [
-        ConfigModule.forRoot({ isGlobal: true }),
+        ConfigModule.forRoot({
+            isGlobal: true,
+            envFilePath: ['../../.env', '.env'],
+        }),
 
         TypeOrmModule.forRootAsync({
             inject: [ConfigService],
